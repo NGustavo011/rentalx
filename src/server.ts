@@ -5,6 +5,8 @@ import swaggerFile from "./swagger.json";
 
 import { router } from "./routes";
 
+import "./shared/container";
+
 const app = express();
 
 console.log("a");

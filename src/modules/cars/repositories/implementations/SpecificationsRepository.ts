@@ -3,32 +3,57 @@ import {
     ICreateSpecificationDTO,
     ISpecificationsRepository,
 } from "../ISpecificationRepository";
+import { prisma } from "../../../../database";
+import { PrismaClient } from "@prisma/client";
 
 class SpecificationRepository implements ISpecificationsRepository {
-    private specifications: Specification[];
+    private repository: PrismaClient;
 
     constructor() {
-        this.specifications = [];
+        this.repository = prisma;
     }
 
-    create({ name, description }: ICreateSpecificationDTO): void {
+    async create({
+        name,
+        description,
+    }: ICreateSpecificationDTO): Promise<void> {
         const specification = new Specification();
         Object.assign(specification, {
             name,
             description,
             created_at: new Date(),
         });
-        this.specifications.push(specification);
+        await this.repository.specification.create({
+            data: {
+                name: specification.name,
+                description: specification.description,
+            },
+            select: {
+                id: true,
+            },
+        });
     }
 
-    list(): Specification[] {
-        return this.specifications;
+    async list(): Promise<Specification[]> {
+        const specifications = await this.repository.specification.findMany({
+            select: {
+                id: true,
+                name: true,
+                description: true,
+                created_at: true,
+            },
+        });
+        return specifications;
     }
 
-    findByName(name: string): Specification {
-        const specification = this.specifications.find(
-            specification => specification.name === name
-        );
+    async findByName(name: string): Promise<Specification> {
+        const specification = await this.repository.specification.findFirst({
+            where: {
+                name: {
+                    equals: name,
+                },
+            },
+        });
         return specification;
     }
 }
