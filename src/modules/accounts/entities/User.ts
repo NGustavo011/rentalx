@@ -6,6 +6,7 @@ class User {
     password: string;
     email: string;
     driver_license: string;
+    avatar?: string;
     admin: boolean;
     created_at: Date;
 
